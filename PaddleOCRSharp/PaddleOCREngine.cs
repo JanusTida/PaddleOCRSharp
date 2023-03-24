@@ -82,7 +82,7 @@ namespace PaddleOCRSharp
             if (parameter == null) parameter = new OCRParameter();
             if (config == null)
             {
-                string root = System.IO.Path.GetDirectoryName(typeof(OCRModelConfig).Assembly.Location);
+                string root = GetRootDirectory();
                 config = new OCRModelConfig();
                 string modelPathroot = root + @"\inference";
                 config.det_infer = modelPathroot + @"\ch_PP-OCRv3_det_infer";
@@ -342,7 +342,7 @@ namespace PaddleOCRSharp
             if (parameter == null) parameter = new OCRParameter();
             if (config == null)
             {
-                string root = System.IO.Path.GetDirectoryName(typeof(OCRModelConfig).Assembly.Location);
+                string root = GetRootDirectory();
                 config = new OCRModelConfig();
                 string modelPathroot = root + @"\inference";
                 config.det_infer = modelPathroot + @"\ch_PP-OCRv3_det_infer";
@@ -359,15 +359,24 @@ namespace PaddleOCRSharp
 
         #region private
 
-
+        /// <summary>
+        /// 获取程序的当前路径;
+        /// </summary>
+        /// <returns></returns>
+        private static string GetRootDirectory()
+        {
+#if NET46_OR_GREATER || NETCOREAPP
+            return AppContext.BaseDirectory;
+#else
+            return Path.GetDirectoryName(typeof(PaddleOCREngine).Assembly.Location);
+#endif
+        }
         /// <summary>
         /// 依赖文件检查
         /// </summary>
         private void CheckLibFiles()
         {
-            string rootpath = typeof(PaddleOCREngine).Assembly.Location;
-           
-            rootpath = Path.GetDirectoryName(rootpath);
+            string rootpath = GetRootDirectory();
             rootpath= rootpath.TrimEnd('\\')+'\\';
             string[] checkfiles = new string[] { "libiomp5md.dll", "mkldnn.dll", "mklml.dll", "paddle_inference.dll", "PaddleOCR.dll" };
             foreach (var file in checkfiles)
@@ -417,14 +426,14 @@ namespace PaddleOCRSharp
                 return buffer;
             }
         }
-        #endregion
+#endregion
 
-        #region Dispose
+#region Dispose
 
         public void Dispose()
         {
             FreeEngine(Engine);
         }
-        #endregion
+#endregion
     }
 }
